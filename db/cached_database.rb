@@ -30,6 +30,10 @@ class CachedDatabase
   end
 end
 
+def db
+  @db ||= CachedDatabase.new  
+end
+
 require "db/admin"
 require "db/categories"
 require "db/posts"

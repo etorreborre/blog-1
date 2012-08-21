@@ -1,5 +1,5 @@
-class Admin
-  class Db < CachedDatabase
+class DB
+  class Admin < CachedDatabase
     
     def get(key)
       materialize(@cache.get(key) { COUCH.get(key) }).first

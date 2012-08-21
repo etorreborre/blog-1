@@ -57,34 +57,45 @@ class Watcher
     end
   end
 
-  def run_single_spec(underscored_name)  
+  def run_single_spec(underscored_name)
+    start = Time::now
+    
     spec = Pathname("test/#{underscored_name}_spec.rb")
 
     if spec.exist?
       puts "\n --- Running #{spec.basename('.rb')} ---\n\n"
-      begin
-        org.jruby.Ruby.newInstance.executeScript <<-RUBY, spec.to_s
+      
+      org.jruby.Ruby.newInstance.executeScript <<-RUBY, spec.to_s
+        begin
           require "#{spec}"
           MiniTest::Unit.new._run
-        RUBY
-      rescue Exception => e
-        puts e.to_s, e.backtrace.join("\n")
-      end
+        rescue java.lang.Throwable, Exception => e
+          puts e.to_s, e.backtrace.join("\n")
+        end
+      RUBY
+
     else
       puts "No matching spec for #{underscored_name}"
     end
+    
+    puts "Completed in #{Time::now - start}s"
   end
 
   def run_all_specs
+    start = Time::now
+    
     puts "\n --- Running all specs ---\n\n"
-    begin
-      org.jruby.Ruby.newInstance.executeScript <<-RUBY, "all-specs"
+
+    org.jruby.Ruby.newInstance.executeScript <<-RUBY, "all-specs"
+      begin
         Dir["test/**/*_spec.rb"].each { |file| require file }
         MiniTest::Unit.new._run
-      RUBY
-    rescue Exception => e
-      puts e.to_s, e.backtrace.join("\n")
-    end
+      rescue java.lang.Throwable, Exception => e
+        puts e.to_s, e.backtrace.join("\n")
+      end
+    RUBY
+    
+    puts "Completed in #{Time::now - start}s"
   end
 end
 
